@@ -1,6 +1,7 @@
 package application;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,94 +13,95 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 public class Main extends Application {
-	@Override
-	public void start(Stage primaryStage) {
-		try {
-			Label title = new Label(" steganography program that uses the LSB");
-			Button encodeButton = new Button("Encode the secret message ");
-			Button decodeButton = new Button("Decode  the secret message");
+    @Override
+    public void start(Stage primaryStage) {
+        try {
+            // Create buttons
+            Button encodeButton = new Button("Encode a Secret Message");
+            Button decodeButton = new Button("Decode a Secret Message");
 
-			title.setLayoutX(300);
-			title.setLayoutY(200);
-			title.setTextFill(Color.THISTLE);
-			title.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
-		
-			encodeButton.setLayoutX(450);
-			encodeButton.setLayoutY(350);
-			encodeButton.setOpacity(1.0);
-			encodeButton.setPrefSize(300, 50);
-			encodeButton.setFont(new Font("Comic Sans MS", 20));
-			encodeButton.setStyle("-fx-background-color: THISTLE");
-			
-			decodeButton.setLayoutX(800);
-			decodeButton.setLayoutY(350);
-			decodeButton.setOpacity(1.0);
-			decodeButton.setPrefSize(300, 50);
-			decodeButton.setFont(new Font("Comic Sans MS", 20));
-			decodeButton.setStyle("-fx-background-color: THISTLE");
-			
-			Pane root = new Pane();
-			root.getChildren().addAll(title, encodeButton, decodeButton);
-			root.setBackground(Background());
+            // Set button styles
+            encodeButton.setPrefSize(300, 50);
+            encodeButton.setFont(new Font("Calibri", 20));
+            encodeButton.setStyle("-fx-background-color: #556cf7; -fx-text-fill: white;");
 
-			Scene scene = new Scene(root, 400, 400);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-			primaryStage.setScene(scene);
-			primaryStage.setFullScreen(true);
-			primaryStage.show();
-			
-			encodeButton.setOnAction(e -> {
-				Pane encodeBorderPane = new BorderPane();
-				encodeBorderPane=encode.encodeOpr();
-				//encodeBorderPane.setBackground(Background());
-				Scene name1 = new Scene(encodeBorderPane);
-				primaryStage.setScene(name1);
-				primaryStage.setFullScreen(true);
+            decodeButton.setPrefSize(300, 50);
+            decodeButton.setFont(new Font("Calibri", 20));
+            decodeButton.setStyle("-fx-background-color: #556cf7; -fx-text-fill: white;");
 
-			});
-			decodeButton.setOnAction(e -> {
-				Pane decodeBorderPane = new BorderPane();
-				decodeBorderPane=decode.decodeOpr();
-				decodeBorderPane.setBackground(Background());
-				Scene name1 = new Scene(decodeBorderPane);
-				primaryStage.setScene(name1);
-				primaryStage.setFullScreen(true);
+            // Create label with the text "Using LSB"
+            Label lsbLabel = new Label("Using LSB");
+            lsbLabel.setFont(new Font("Calibri", 50));
+            lsbLabel.setStyle("-fx-background-color: white; -fx-text-fill: #fa820e;");
+            lsbLabel.setPrefSize(300, 100);
+            lsbLabel.setAlignment(Pos.CENTER);
+            // Create VBox for the label, aligning it at the top
+            VBox labelBox = new VBox(lsbLabel);
+            labelBox.setStyle("-fx-alignment: top-center; -fx-padding: 50;");
+            labelBox.setTranslateY(550);
+            labelBox.setTranslateX(50);
 
-			});	encode.back.setOnAction(e -> {
-				primaryStage.setScene(scene);
-				primaryStage.setFullScreen(true);
-				primaryStage.show();
+            // Create VBox for the buttons, aligning them at the center of the bottom area
+            VBox buttonBox = new VBox(20, encodeButton, decodeButton);
+            buttonBox.setStyle("-fx-alignment: center; -fx-padding: 20;");
 
-			});
-			decode.back.setOnAction(e -> {
-				primaryStage.setScene(scene);
-				primaryStage.setFullScreen(true);
-				primaryStage.show();
+            BorderPane root = new BorderPane();
+            root.setBackground(createBackground());
 
-			});
-		
+            root.setRight(labelBox);
+            root.setBottom(buttonBox);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            // Set the scene
+            Scene scene = new Scene(root, 800, 600); // Adjust dimensions as needed
+            primaryStage.setScene(scene);
+            primaryStage.setFullScreen(true);
+            primaryStage.show();
+            
+            // Encode button action
+            encodeButton.setOnAction(e -> {
+                Pane encodeBorderPane = new BorderPane();
+                encodeBorderPane = encode.encodeOpr();
+                Scene encodeScene = new Scene(encodeBorderPane);
+                primaryStage.setScene(encodeScene);
+                primaryStage.setFullScreen(true);
+            });
 
-	public static Background Background() {
-		Image image = new Image("Steganography.png");
-		BackgroundSize backgroundSize = new BackgroundSize(1560, 855, false, false, false, false);
-		BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
-				BackgroundRepeat.NO_REPEAT, null, backgroundSize);
-		Background background1 = new Background(backgroundImage);
-		;
-		return background1;
-	}
+            // Decode button action
+            decodeButton.setOnAction(e -> {
+                Pane decodeBorderPane = new BorderPane();
+                decodeBorderPane = decode.decodeOpr();
+                Scene decodeScene = new Scene(decodeBorderPane);
+                primaryStage.setScene(decodeScene);
+                primaryStage.setFullScreen(true);
+            });
 
-	public static void main(String[] args) {
-		launch(args);
-	}
+            encode.back.setOnAction(e -> {
+                primaryStage.setScene(scene);
+                primaryStage.setFullScreen(true);
+            });
+            decode.backk.setOnAction(e -> {
+            	primaryStage.setScene(scene);
+                primaryStage.setFullScreen(true);
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Background createBackground() {
+        Image image = new Image("Steganography.png");
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, false);
+        BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT, null, backgroundSize);
+        return new Background(backgroundImage);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
