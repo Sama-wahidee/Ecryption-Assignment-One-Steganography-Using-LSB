@@ -167,7 +167,6 @@ public class decode {
 			}
 
 			if (binaryMessage.length() >= 8 && binaryMessage.substring(binaryMessage.length() - 8).equals("11111111")) {
-				binaryMessage.setLength(binaryMessage.length() - 8);
 				break;
 			}
 		}
@@ -179,7 +178,7 @@ public class decode {
 			message.append((char) (c - 2)); 
 		}
 
-		return message.toString();
+		return message.toString().substring(0, message.length() - 1);
 	}
 
 	private static char getLSBXOR(int encodedPixel, int originalPixel, String channel) {
