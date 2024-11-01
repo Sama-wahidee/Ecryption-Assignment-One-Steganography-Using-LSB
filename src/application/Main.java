@@ -20,11 +20,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Create buttons
             Button encodeButton = new Button("Encode a Secret Message");
             Button decodeButton = new Button("Decode a Secret Message");
 
-            // Set button styles
             encodeButton.setPrefSize(300, 50);
             encodeButton.setFont(new Font("Calibri", 20));
             encodeButton.setStyle("-fx-background-color: #556cf7; -fx-text-fill: white;");
@@ -33,19 +31,16 @@ public class Main extends Application {
             decodeButton.setFont(new Font("Calibri", 20));
             decodeButton.setStyle("-fx-background-color: #556cf7; -fx-text-fill: white;");
 
-            // Create label with the text "Using LSB"
             Label lsbLabel = new Label("Using LSB");
             lsbLabel.setFont(new Font("Calibri", 50));
             lsbLabel.setStyle("-fx-background-color: white; -fx-text-fill: #fa820e;");
             lsbLabel.setPrefSize(300, 100);
             lsbLabel.setAlignment(Pos.CENTER);
-            // Create VBox for the label, aligning it at the top
             VBox labelBox = new VBox(lsbLabel);
             labelBox.setStyle("-fx-alignment: top-center; -fx-padding: 50;");
             labelBox.setTranslateY(550);
             labelBox.setTranslateX(50);
 
-            // Create VBox for the buttons, aligning them at the center of the bottom area
             VBox buttonBox = new VBox(20, encodeButton, decodeButton);
             buttonBox.setStyle("-fx-alignment: center; -fx-padding: 20;");
 
@@ -55,13 +50,11 @@ public class Main extends Application {
             root.setRight(labelBox);
             root.setBottom(buttonBox);
 
-            // Set the scene
-            Scene scene = new Scene(root, 800, 600); // Adjust dimensions as needed
+            Scene scene = new Scene(root, 800, 600); 
             primaryStage.setScene(scene);
             primaryStage.setFullScreen(true);
             primaryStage.show();
             
-            // Encode button action
             encodeButton.setOnAction(e -> {
                 Pane encodeBorderPane = new BorderPane();
                 encodeBorderPane = encode.encodeOpr();
@@ -70,7 +63,6 @@ public class Main extends Application {
                 primaryStage.setFullScreen(true);
             });
 
-            // Decode button action
             decodeButton.setOnAction(e -> {
                 Pane decodeBorderPane = new BorderPane();
                 decodeBorderPane = decode.decodeOpr();

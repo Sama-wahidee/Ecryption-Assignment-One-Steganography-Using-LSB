@@ -95,9 +95,7 @@ public class encode {
             try {
                 File inputFile = new File("C:\\Users\\sama6\\OneDrive\\Desktop\\image.png");
                 BufferedImage bufferedImage = ImageIO.read(inputFile);
-
-                int sectionHeight = bufferedImage.getHeight() / 3;
-                hideMessage(bufferedImage, message, sectionHeight);
+                hideMessage(bufferedImage, message);
 
                 File outputFile = new File("output_image.png");
                 ImageIO.write(bufferedImage, "png", outputFile);
@@ -113,46 +111,68 @@ public class encode {
         return encodePane;
     }
 
-    private static void hideMessage(BufferedImage image, String message, int sectionHeight) {
-        // Shift each character in the message 2 positions to the right
+    private static void hideMessage(BufferedImage image, String message) {
         StringBuilder shiftedMessage = new StringBuilder();
         for (char c : message.toCharArray()) {
             shiftedMessage.append((char) (c + 2));
         }
 
-        // Convert the shifted message to binary
         StringBuilder binaryMessage = new StringBuilder();
         for (char c : shiftedMessage.toString().toCharArray()) {
             String binaryChar = String.format("%08d", Integer.parseInt(Integer.toBinaryString(c)));
             binaryMessage.append(binaryChar);
         }
-        binaryMessage.append("11111111"); // End of message
+        binaryMessage.append("11111111"); 
 
         int width = image.getWidth();
         int height = image.getHeight();
+        int sectionHeight = height / 3;
         int messageIndex = 0;
 
-        // Red part: Left to right on the first row
-        for (int x = 0; x < width && messageIndex < binaryMessage.length(); x++) {
-            int pixel = image.getRGB(x, 0);
-            pixel = setLSB(pixel, binaryMessage.charAt(messageIndex++), "red");
-            image.setRGB(x, 0, pixel);
-        }
+        int xRed = 0, yRed = 0; 
+        int xGreen = width - 1, yGreen = sectionHeight;
+        int xBlue = 0, yBlue = 2 * sectionHeight; 
 
-        // Green part: Right to left on the last row
-        for (int x = width - 1; x >= 0 && messageIndex < binaryMessage.length(); x--) {
-            int pixel = image.getRGB(x, height - 1);
-            pixel = setLSB(pixel, binaryMessage.charAt(messageIndex++), "green");
-            image.setRGB(x, height - 1, pixel);
-        }
+        while (messageIndex < binaryMessage.length()) {
+            if (messageIndex < binaryMessage.length()) {
+                int pixel = image.getRGB(xRed, yRed);
+                pixel = setLSB(pixel, binaryMessage.charAt(messageIndex++), "red");
+                image.setRGB(xRed, yRed, pixel);
+                xRed++;
+                if (xRed >= width) { 
+                    xRed = 0;
+                    yRed++;
+                }
+            }
 
-        // Blue part: Downward in the first column
-        for (int y = 1; y < height && messageIndex < binaryMessage.length(); y++) {
-            int pixel = image.getRGB(0, y);
-            pixel = setLSB(pixel, binaryMessage.charAt(messageIndex++), "blue");
-            image.setRGB(0, y, pixel);
+            if (messageIndex < binaryMessage.length()) {
+                int pixel = image.getRGB(xGreen, yGreen);
+                pixel = setLSB(pixel, binaryMessage.charAt(messageIndex++), "green");
+
+                image.setRGB(xGreen, yGreen, pixel);
+
+                xGreen--;
+                if (xGreen < 0) { 
+                    xGreen = width - 1;
+                    yGreen++;
+                }
+            }
+
+            if (messageIndex < binaryMessage.length()) {
+                int pixel = image.getRGB(xBlue, yBlue);
+                pixel = setLSB(pixel, binaryMessage.charAt(messageIndex++), "blue");
+                image.setRGB(xBlue, yBlue, pixel);
+
+                yBlue++;
+                if (yBlue >= height) { 
+                    yBlue = 2 * sectionHeight;
+                    xBlue++;
+                }
+            }
         }
     }
+
+
 
 
     private static int setLSB(int pixel, char bit, String channel) {
