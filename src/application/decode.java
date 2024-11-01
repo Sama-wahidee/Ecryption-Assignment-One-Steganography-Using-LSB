@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -40,11 +41,10 @@ public class decode {
 		backk.setStyle(buttonStyle);
 		backk.setFont(buttonFont);
 
-		Label plainText = new Label();
+		TextArea plainText = new TextArea();
 		plainText.setFont(new Font("Calibri", 20));
-		plainText.setTextFill(Color.BLACK);
 		plainText.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-padding: 10;");
-		plainText.setPrefSize(300, 50);
+		plainText.setMaxSize(800, 50);
 
 		ImageView beforeImageView = new ImageView("Empty.png");
 		beforeImageView.setFitHeight(400);
@@ -122,63 +122,76 @@ public class decode {
 	}
 
 	private static String revealMessage(BufferedImage encodedImage, BufferedImage originalImage) {
-		StringBuilder binaryMessage = new StringBuilder();
-		int width = encodedImage.getWidth();
-		int height = encodedImage.getHeight();
-		int sectionHeight = height / 3;
+	    StringBuilder binaryMessage = new StringBuilder();
+	    int width = encodedImage.getWidth();
+	    int height = encodedImage.getHeight();
+	    int sectionHeight = height / 3;
 
-		int xRed = 0, yRed = 0; 
-		int xGreen = width - 1, yGreen = sectionHeight; 
-		int xBlue = 0, yBlue = 2 * sectionHeight; 
+	    int xRed = 0, yRed = 0;
+	    int xGreen = width - 1, yGreen = sectionHeight;
+	    int xBlue = 0, yBlue = 2 * sectionHeight;
 
-		while (true) {
-			int encodedPixel = encodedImage.getRGB(xRed, yRed);
-			int originalPixel = originalImage.getRGB(xRed, yRed);
-			binaryMessage.append(getLSBXOR(encodedPixel, originalPixel, "red"));
+	    boolean finished = false;
 
-			xRed++;
-			if (xRed >= width) {
-				xRed = 0;
-				yRed++;
-			}
+	    while (!finished) {
+	        int encodedPixel = 0;
+	        int originalPixel = 0;
 
-			if (yGreen < height) {
-				encodedPixel = encodedImage.getRGB(xGreen, yGreen);
-				originalPixel = originalImage.getRGB(xGreen, yGreen);
-				binaryMessage.append(getLSBXOR(encodedPixel, originalPixel, "green"));
+	        if (xRed < width && yRed < height) {
+	            encodedPixel = encodedImage.getRGB(xRed, yRed);
+	            originalPixel = originalImage.getRGB(xRed, yRed);
+	            binaryMessage.append(getLSBXOR(encodedPixel, originalPixel, "red"));
 
-				xGreen--;
-				if (xGreen < 0) {
-					xGreen = width - 1;
-					yGreen++;
-				}
-			}
+	            xRed++;
+	            if (xRed >= width) {
+	                xRed = 0;
+	                yRed++;
+	            }
+	        }else {
+	        	break;
+	        }
 
-			if (yBlue < height) {
-				encodedPixel = encodedImage.getRGB(xBlue, yBlue);
-				originalPixel = originalImage.getRGB(xBlue, yBlue);
-				binaryMessage.append(getLSBXOR(encodedPixel, originalPixel, "blue"));
+	        if (yGreen < height) {
+            encodedPixel = encodedImage.getRGB(xGreen, yGreen);
+	            originalPixel = originalImage.getRGB(xGreen, yGreen);
+	            binaryMessage.append(getLSBXOR(encodedPixel, originalPixel, "green"));
+	            xGreen--;
+	            if (xGreen < 0) {
+	                xGreen = width - 1;
+	                yGreen++;
+	            }
+	        }
 
-				yBlue++;
-				if (yBlue >= height) {
-					yBlue = 2 * sectionHeight;
-					xBlue++;
-				}
-			}
+	        if (yBlue < height && xBlue < width) {
 
-			if (binaryMessage.length() >= 8 && binaryMessage.substring(binaryMessage.length() - 8).equals("11111111")) {
-				break;
-			}
-		}
+	            encodedPixel = encodedImage.getRGB(xBlue, yBlue);
+	            originalPixel = originalImage.getRGB(xBlue, yBlue);
+	            binaryMessage.append(getLSBXOR(encodedPixel, originalPixel, "blue"));
 
-		StringBuilder message = new StringBuilder();
-		for (int i = 0; i < binaryMessage.length(); i += 8) {
-			String byteStr = binaryMessage.substring(i, Math.min(i + 8, binaryMessage.length()));
-			char c = (char) Integer.parseInt(byteStr, 2);
-			message.append((char) (c - 2)); 
-		}
+	            yBlue++;
+	            if (yBlue >= height) {
+	                yBlue = 2 * sectionHeight;
+	                xBlue++;
+	            }
+	        }
 
-		return message.toString().substring(0, message.length() - 1);
+	        if ((yRed >= height && xRed >= width) && (yGreen >= height) && (xGreen < 0) && (yBlue >= height && xBlue >= width)) {
+	            finished = true; 
+	        }
+	    }
+
+	    StringBuilder message = new StringBuilder();
+	    for (int i = 0; i < binaryMessage.length(); i += 8) {
+	        String byteStr = binaryMessage.substring(i, Math.min(i + 8, binaryMessage.length()));
+	        char c = (char) Integer.parseInt(byteStr, 2);
+	        message.append((char) (c - 2));
+	    }
+	    String result = message.toString();
+	    int index = result.indexOf('ý');
+	    if (index != -1) {
+	        return result.substring(0, index);
+	    }
+	    return result; 
 	}
 
 	private static char getLSBXOR(int encodedPixel, int originalPixel, String channel) {
@@ -200,7 +213,6 @@ public class decode {
 			break;
 		}
 
-		
 		return (encodedLSB != originalLSB) ? '1' : '0';
 	}
 }
